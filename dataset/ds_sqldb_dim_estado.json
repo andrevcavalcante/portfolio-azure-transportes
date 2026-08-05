@@ -1,0 +1,44 @@
+{
+	"name": "ds_sqldb_dim_estado",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "ls_sqldb_transportes_gold",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "AzureSqlTable",
+		"schema": [
+			{
+				"name": "uf",
+				"type": "varchar"
+			},
+			{
+				"name": "uf_nome",
+				"type": "varchar"
+			},
+			{
+				"name": "regiao",
+				"type": "varchar"
+			},
+			{
+				"name": "total_km",
+				"type": "float",
+				"precision": 15
+			},
+			{
+				"name": "pavimentada_km",
+				"type": "float",
+				"precision": 15
+			},
+			{
+				"name": "percentual_pavimentado",
+				"type": "float",
+				"precision": 15
+			}
+		],
+		"typeProperties": {
+			"schema": "dbo",
+			"table": "dim_estado"
+		}
+	}
+}

@@ -1,0 +1,147 @@
+{
+	"name": "ds_sqldb_fato_acidentes",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "ls_sqldb_transportes_gold",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "AzureSqlTable",
+		"schema": [
+			{
+				"name": "id",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "data",
+				"type": "date"
+			},
+			{
+				"name": "horario",
+				"type": "datetime2",
+				"scale": 7
+			},
+			{
+				"name": "uf",
+				"type": "varchar"
+			},
+			{
+				"name": "br",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "km",
+				"type": "float",
+				"precision": 15
+			},
+			{
+				"name": "municipio",
+				"type": "varchar"
+			},
+			{
+				"name": "causa_acidente",
+				"type": "varchar"
+			},
+			{
+				"name": "tipo_acidente",
+				"type": "varchar"
+			},
+			{
+				"name": "classificacao_acidente",
+				"type": "varchar"
+			},
+			{
+				"name": "fase_dia",
+				"type": "varchar"
+			},
+			{
+				"name": "sentido_via",
+				"type": "varchar"
+			},
+			{
+				"name": "condicao_metereologica",
+				"type": "varchar"
+			},
+			{
+				"name": "tipo_pista",
+				"type": "varchar"
+			},
+			{
+				"name": "tracado_via",
+				"type": "varchar"
+			},
+			{
+				"name": "uso_solo",
+				"type": "varchar"
+			},
+			{
+				"name": "latitude",
+				"type": "float",
+				"precision": 15
+			},
+			{
+				"name": "longitude",
+				"type": "float",
+				"precision": 15
+			},
+			{
+				"name": "regional",
+				"type": "varchar"
+			},
+			{
+				"name": "delegacia",
+				"type": "varchar"
+			},
+			{
+				"name": "uop",
+				"type": "varchar"
+			},
+			{
+				"name": "pessoas",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "mortos",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "feridos_leves",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "feridos_graves",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "feridos",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "ilesos",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "ignorados",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "veiculos",
+				"type": "int",
+				"precision": 10
+			}
+		],
+		"typeProperties": {
+			"schema": "dbo",
+			"table": "fato_acidentes"
+		}
+	}
+}

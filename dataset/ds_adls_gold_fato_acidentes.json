@@ -1,0 +1,20 @@
+{
+	"name": "ds_adls_gold_fato_acidentes",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "ls_adls_transportes",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "Parquet",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobFSLocation",
+				"fileName": "fato_acidentes.parquet",
+				"fileSystem": "gold"
+			},
+			"compressionCodec": "snappy"
+		},
+		"schema": []
+	}
+}

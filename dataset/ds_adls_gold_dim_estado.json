@@ -1,0 +1,20 @@
+{
+	"name": "ds_adls_gold_dim_estado",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "ls_adls_transportes",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "Parquet",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobFSLocation",
+				"fileName": "dim_estado.parquet",
+				"fileSystem": "gold"
+			},
+			"compressionCodec": "snappy"
+		},
+		"schema": []
+	}
+}
