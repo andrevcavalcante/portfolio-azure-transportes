@@ -1,0 +1,83 @@
+{
+	"name": "df_silver_to_gold",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "ds_adls_silver_parquet",
+						"type": "DatasetReference"
+					},
+					"name": "origemSilver"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "ds_adls_gold_parquet",
+						"type": "DatasetReference"
+					},
+					"name": "destinoGold"
+				}
+			],
+			"transformations": [
+				{
+					"name": "AgregaDados"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          id as integer,",
+				"          data_inversa as date,",
+				"          dia_semana as string,",
+				"          horario as timestamp,",
+				"          uf as string,",
+				"          br as integer,",
+				"          km as double,",
+				"          municipio as string,",
+				"          causa_acidente as string,",
+				"          tipo_acidente as string,",
+				"          classificacao_acidente as string,",
+				"          fase_dia as string,",
+				"          sentido_via as string,",
+				"          condicao_metereologica as string,",
+				"          tipo_pista as string,",
+				"          tracado_via as string,",
+				"          uso_solo as string,",
+				"          pessoas as integer,",
+				"          mortos as integer,",
+				"          feridos_leves as integer,",
+				"          feridos_graves as integer,",
+				"          feridos as integer,",
+				"          ilesos as integer,",
+				"          ignorados as integer,",
+				"          veiculos as integer,",
+				"          latitude as double,",
+				"          longitude as double,",
+				"          regional as string,",
+				"          delegacia as string,",
+				"          uop as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false,",
+				"     format: 'parquet') ~> origemSilver",
+				"origemSilver aggregate(groupBy(uf,",
+				"          causa_acidente),",
+				"     total_acidentes = count(1),",
+				"          total_mortos = sum(mortos)) ~> AgregaDados",
+				"AgregaDados sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     format: 'parquet',",
+				"     partitionFileNames:['acidentes_por_uf.parquet'],",
+				"     umask: 0022,",
+				"     preCommands: [],",
+				"     postCommands: [],",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     partitionBy('hash', 1)) ~> destinoGold"
+			]
+		}
+	}
+}

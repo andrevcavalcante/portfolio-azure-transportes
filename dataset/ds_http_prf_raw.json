@@ -1,0 +1,21 @@
+{
+	"name": "ds_http_prf_raw",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "ls_http_prf",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "Binary",
+		"typeProperties": {
+			"location": {
+				"type": "HttpServerLocation"
+			},
+			"compression": {
+				"type": "ZipDeflate",
+				"level": "Optimal"
+			}
+		}
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

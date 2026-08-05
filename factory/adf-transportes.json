@@ -1,0 +1,15 @@
+{
+	"name": "adf-transportes",
+	"properties": {
+		"trustModeClaimForMi": {
+			"value": "Disabled",
+			"editable": true
+		}
+	},
+	"location": "brazilsouth",
+	"identity": {
+		"type": "SystemAssigned",
+		"principalId": "7c140220-0779-4004-a335-f7eaf2cb325b",
+		"tenantId": "f602f156-6e1f-43b0-b27f-e6b37e7cc3e3"
+	}
+}

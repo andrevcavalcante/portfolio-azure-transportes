@@ -1,0 +1,142 @@
+{
+	"name": "ds_adls_silver_parquet",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "ls_adls_transportes",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "Parquet",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobFSLocation",
+				"folderPath": "acidentes_silver",
+				"fileSystem": "silver"
+			},
+			"compressionCodec": "snappy"
+		},
+		"schema": [
+			{
+				"name": "id",
+				"type": "INT_32"
+			},
+			{
+				"name": "data_inversa",
+				"type": "DATE"
+			},
+			{
+				"name": "dia_semana",
+				"type": "UTF8"
+			},
+			{
+				"name": "horario",
+				"type": "INT96"
+			},
+			{
+				"name": "uf",
+				"type": "UTF8"
+			},
+			{
+				"name": "br",
+				"type": "INT_32"
+			},
+			{
+				"name": "km",
+				"type": "DOUBLE"
+			},
+			{
+				"name": "municipio",
+				"type": "UTF8"
+			},
+			{
+				"name": "causa_acidente",
+				"type": "UTF8"
+			},
+			{
+				"name": "tipo_acidente",
+				"type": "UTF8"
+			},
+			{
+				"name": "classificacao_acidente",
+				"type": "UTF8"
+			},
+			{
+				"name": "fase_dia",
+				"type": "UTF8"
+			},
+			{
+				"name": "sentido_via",
+				"type": "UTF8"
+			},
+			{
+				"name": "condicao_metereologica",
+				"type": "UTF8"
+			},
+			{
+				"name": "tipo_pista",
+				"type": "UTF8"
+			},
+			{
+				"name": "tracado_via",
+				"type": "UTF8"
+			},
+			{
+				"name": "uso_solo",
+				"type": "UTF8"
+			},
+			{
+				"name": "pessoas",
+				"type": "INT_32"
+			},
+			{
+				"name": "mortos",
+				"type": "INT_32"
+			},
+			{
+				"name": "feridos_leves",
+				"type": "INT_32"
+			},
+			{
+				"name": "feridos_graves",
+				"type": "INT_32"
+			},
+			{
+				"name": "feridos",
+				"type": "INT_32"
+			},
+			{
+				"name": "ilesos",
+				"type": "INT_32"
+			},
+			{
+				"name": "ignorados",
+				"type": "INT_32"
+			},
+			{
+				"name": "veiculos",
+				"type": "INT_32"
+			},
+			{
+				"name": "latitude",
+				"type": "DOUBLE"
+			},
+			{
+				"name": "longitude",
+				"type": "DOUBLE"
+			},
+			{
+				"name": "regional",
+				"type": "UTF8"
+			},
+			{
+				"name": "delegacia",
+				"type": "UTF8"
+			},
+			{
+				"name": "uop",
+				"type": "UTF8"
+			}
+		]
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

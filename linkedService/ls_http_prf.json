@@ -1,0 +1,13 @@
+{
+	"name": "ls_http_prf",
+	"type": "Microsoft.DataFactory/factories/linkedservices",
+	"properties": {
+		"annotations": [],
+		"type": "HttpServer",
+		"typeProperties": {
+			"url": "https://drive.google.com/uc?export=download&id=1A3IirNm0AzRaSosA1IS94DOVmvKsn0Ol",
+			"enableServerCertificateValidation": true,
+			"authenticationType": "Anonymous"
+		}
+	}
+}

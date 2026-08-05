@@ -1,0 +1,19 @@
+{
+	"name": "ds_adls_bronze_raw",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "ls_adls_transportes",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "Binary",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobFSLocation",
+				"fileName": "datatran2026.csv",
+				"fileSystem": "bronze"
+			}
+		}
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}
