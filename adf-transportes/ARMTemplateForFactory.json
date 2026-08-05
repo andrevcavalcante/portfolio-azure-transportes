@@ -1,0 +1,1486 @@
+{
+	"$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"factoryName": {
+			"type": "string",
+			"metadata": "Nome do Data Factory",
+			"defaultValue": "adf-transportes"
+		},
+		"AzureDatabricks1_accessToken": {
+			"type": "secureString",
+			"metadata": "Cadeia de caracteres segura para 'accessToken' de 'AzureDatabricks1'"
+		},
+		"ls_adls_transportes_accountKey": {
+			"type": "secureString",
+			"metadata": "Cadeia de caracteres segura para 'accountKey' de 'ls_adls_transportes'"
+		},
+		"ls_databricks_transportes_accessToken": {
+			"type": "secureString",
+			"metadata": "Cadeia de caracteres segura para 'accessToken' de 'ls_databricks_transportes'"
+		},
+		"ls_sqldb_transportes_gold_password": {
+			"type": "secureString",
+			"metadata": "Cadeia de caracteres segura para 'password' de 'ls_sqldb_transportes_gold'"
+		},
+		"AzureDatabricks1_properties_typeProperties_existingClusterId": {
+			"type": "string",
+			"defaultValue": "0801-010051-oxan9fa1"
+		},
+		"ls_adls_transportes_properties_typeProperties_url": {
+			"type": "string",
+			"defaultValue": "https://stgtransportes2026.dfs.core.windows.net/"
+		},
+		"ls_databricks_transportes_properties_typeProperties_existingClusterId": {
+			"type": "string",
+			"defaultValue": "0801-010051-oxan9fa1"
+		},
+		"ls_http_prf_properties_typeProperties_url": {
+			"type": "string",
+			"defaultValue": "https://drive.google.com/uc?export=download&id=1A3IirNm0AzRaSosA1IS94DOVmvKsn0Ol"
+		},
+		"ls_sqldb_transportes_gold_properties_typeProperties_server": {
+			"type": "string",
+			"defaultValue": "sql-transportes-andrev.database.windows.net"
+		},
+		"ls_sqldb_transportes_gold_properties_typeProperties_database": {
+			"type": "string",
+			"defaultValue": "sqldb-transportes-gold"
+		},
+		"ls_sqldb_transportes_gold_properties_typeProperties_userName": {
+			"type": "string",
+			"defaultValue": "adminportfolio"
+		}
+	},
+	"variables": {
+		"factoryId": "[concat('Microsoft.DataFactory/factories/', parameters('factoryName'))]"
+	},
+	"resources": [
+		{
+			"name": "[concat(parameters('factoryName'), '/pl_extract_raw')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Copy data PRF",
+						"type": "Copy",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "BinarySource",
+								"storeSettings": {
+									"type": "HttpReadSettings",
+									"requestMethod": "GET"
+								},
+								"formatSettings": {
+									"type": "BinaryReadSettings",
+									"compressionProperties": {
+										"type": "ZipDeflateReadSettings"
+									}
+								}
+							},
+							"sink": {
+								"type": "BinarySink",
+								"storeSettings": {
+									"type": "AzureBlobFSWriteSettings"
+								}
+							},
+							"enableStaging": false
+						},
+						"inputs": [
+							{
+								"referenceName": "ds_http_prf_raw",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "ds_adls_bronze_raw",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						]
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"annotations": [],
+				"lastPublishTime": "2026-08-01T14:41:45Z"
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/ds_http_prf_raw')]",
+				"[concat(variables('factoryId'), '/datasets/ds_adls_bronze_raw')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/pl_master')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "e_raw_to_bronze",
+						"type": "Copy",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "BinarySource",
+								"storeSettings": {
+									"type": "HttpReadSettings",
+									"requestMethod": "GET"
+								},
+								"formatSettings": {
+									"type": "BinaryReadSettings",
+									"compressionProperties": {
+										"type": "ZipDeflateReadSettings"
+									}
+								}
+							},
+							"sink": {
+								"type": "BinarySink",
+								"storeSettings": {
+									"type": "AzureBlobFSWriteSettings"
+								}
+							},
+							"enableStaging": false
+						},
+						"inputs": [
+							{
+								"referenceName": "ds_http_prf_raw",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "ds_adls_bronze_raw",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						]
+					},
+					{
+						"name": "t_nb_bronze_to_silver",
+						"type": "DatabricksNotebook",
+						"dependsOn": [
+							{
+								"activity": "e_raw_to_bronze",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"notebookPath": "/Users/andrev@andrevcavalcanteoutlook.onmicrosoft.com/01_bronze_to_silver"
+						},
+						"linkedServiceName": {
+							"referenceName": "ls_databricks_transportes",
+							"type": "LinkedServiceReference"
+						}
+					},
+					{
+						"name": "l_df_silver_to_gold",
+						"type": "ExecuteDataFlow",
+						"dependsOn": [
+							{
+								"activity": "t_nb_bronze_to_silver",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataflow": {
+								"referenceName": "df_silver_to_gold",
+								"type": "DataFlowReference",
+								"parameters": {},
+								"datasetParameters": {
+									"origemSilver": {},
+									"destinoGold": {}
+								}
+							},
+							"staging": {},
+							"compute": {
+								"coreCount": 8,
+								"computeType": "General"
+							},
+							"traceLevel": "Fine"
+						}
+					},
+					{
+						"name": "e_nb_dnit_malha",
+						"type": "DatabricksNotebook",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"notebookPath": "/Users/andrev@andrevcavalcanteoutlook.onmicrosoft.com/02_dnit_malha_bronze_to_silver"
+						},
+						"linkedServiceName": {
+							"referenceName": "ls_databricks_transportes",
+							"type": "LinkedServiceReference"
+						}
+					},
+					{
+						"name": "t_nb_gold_enriquecido",
+						"type": "DatabricksNotebook",
+						"dependsOn": [
+							{
+								"activity": "e_nb_dnit_malha",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							},
+							{
+								"activity": "l_df_silver_to_gold",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"notebookPath": "/Users/andrev@andrevcavalcanteoutlook.onmicrosoft.com/03_gold_enriquecido"
+						},
+						"linkedServiceName": {
+							"referenceName": "ls_databricks_transportes",
+							"type": "LinkedServiceReference"
+						}
+					},
+					{
+						"name": "l_gold_to_sqldb",
+						"type": "Copy",
+						"dependsOn": [
+							{
+								"activity": "t_nb_gold_enriquecido",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "ParquetSource",
+								"storeSettings": {
+									"type": "AzureBlobFSReadSettings",
+									"recursive": true,
+									"wildcardFolderPath": "acidentes_enriquecido_dnit.parquet",
+									"wildcardFileName": "part-*.parquet",
+									"enablePartitionDiscovery": false
+								},
+								"formatSettings": {
+									"type": "ParquetReadSettings"
+								}
+							},
+							"sink": {
+								"type": "AzureSqlSink",
+								"preCopyScript": "TRUNCATE TABLE dbo.acidentes_enriquecido",
+								"writeBehavior": "insert",
+								"sqlWriterUseTableLock": false,
+								"disableMetricsCollection": false
+							},
+							"enableStaging": false,
+							"translator": {
+								"type": "TabularTranslator",
+								"mappings": [
+									{
+										"source": {
+											"name": "uf",
+											"type": "String",
+											"physicalType": "UTF8"
+										},
+										"sink": {
+											"name": "uf",
+											"type": "String",
+											"physicalType": "varchar"
+										}
+									},
+									{
+										"source": {
+											"name": "uf_nome",
+											"type": "String",
+											"physicalType": "UTF8"
+										},
+										"sink": {
+											"name": "uf_nome",
+											"type": "String",
+											"physicalType": "varchar"
+										}
+									},
+									{
+										"source": {
+											"name": "regiao",
+											"type": "String",
+											"physicalType": "UTF8"
+										},
+										"sink": {
+											"name": "regiao",
+											"type": "String",
+											"physicalType": "varchar"
+										}
+									},
+									{
+										"source": {
+											"name": "total_acidentes",
+											"type": "Int64",
+											"physicalType": "INT_64"
+										},
+										"sink": {
+											"name": "total_acidentes",
+											"type": "Int64",
+											"physicalType": "bigint"
+										}
+									},
+									{
+										"source": {
+											"name": "total_mortos",
+											"type": "Int64",
+											"physicalType": "INT_64"
+										},
+										"sink": {
+											"name": "total_mortos",
+											"type": "Int64",
+											"physicalType": "bigint"
+										}
+									},
+									{
+										"source": {
+											"name": "total_km",
+											"type": "Double",
+											"physicalType": "DOUBLE"
+										},
+										"sink": {
+											"name": "total_km",
+											"type": "Double",
+											"physicalType": "float"
+										}
+									},
+									{
+										"source": {
+											"name": "pavimentada_km",
+											"type": "Double",
+											"physicalType": "DOUBLE"
+										},
+										"sink": {
+											"name": "pavimentada_km",
+											"type": "Double",
+											"physicalType": "float"
+										}
+									},
+									{
+										"source": {
+											"name": "percentual_pavimentado",
+											"type": "Double",
+											"physicalType": "DOUBLE"
+										},
+										"sink": {
+											"name": "percentual_pavimentado",
+											"type": "Double",
+											"physicalType": "float"
+										}
+									},
+									{
+										"source": {
+											"name": "acidentes_por_1000km",
+											"type": "Double",
+											"physicalType": "DOUBLE"
+										},
+										"sink": {
+											"name": "acidentes_por_1000km",
+											"type": "Double",
+											"physicalType": "float"
+										}
+									},
+									{
+										"source": {
+											"name": "mortes_por_1000km",
+											"type": "Double",
+											"physicalType": "DOUBLE"
+										},
+										"sink": {
+											"name": "mortes_por_1000km",
+											"type": "Double",
+											"physicalType": "float"
+										}
+									}
+								],
+								"typeConversion": true,
+								"typeConversionSettings": {
+									"allowDataTruncation": true,
+									"treatBooleanAsNumber": false
+								}
+							}
+						},
+						"inputs": [
+							{
+								"referenceName": "ds_adls_gold_parquet",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "ds_sqldb_acidentes_enriquecido",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						]
+					},
+					{
+						"name": "l_fato_acidentes_to_sqldb",
+						"type": "Copy",
+						"dependsOn": [
+							{
+								"activity": "l_gold_to_sqldb",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "ParquetSource",
+								"storeSettings": {
+									"type": "AzureBlobFSReadSettings",
+									"recursive": true,
+									"enablePartitionDiscovery": false
+								},
+								"formatSettings": {
+									"type": "ParquetReadSettings"
+								}
+							},
+							"sink": {
+								"type": "AzureSqlSink",
+								"writeBehavior": "insert",
+								"sqlWriterUseTableLock": false
+							},
+							"enableStaging": false,
+							"translator": {
+								"type": "TabularTranslator",
+								"typeConversion": true,
+								"typeConversionSettings": {
+									"allowDataTruncation": true,
+									"treatBooleanAsNumber": false
+								}
+							}
+						},
+						"inputs": [
+							{
+								"referenceName": "ds_adls_gold_fato_acidentes",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "ds_sqldb_fato_acidentes",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						]
+					},
+					{
+						"name": "l_dim_calendario_to_sqldb",
+						"type": "Copy",
+						"dependsOn": [
+							{
+								"activity": "l_gold_to_sqldb",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "ParquetSource",
+								"storeSettings": {
+									"type": "AzureBlobFSReadSettings",
+									"recursive": true,
+									"enablePartitionDiscovery": false
+								},
+								"formatSettings": {
+									"type": "ParquetReadSettings"
+								}
+							},
+							"sink": {
+								"type": "AzureSqlSink",
+								"writeBehavior": "insert",
+								"sqlWriterUseTableLock": false
+							},
+							"enableStaging": false,
+							"translator": {
+								"type": "TabularTranslator",
+								"typeConversion": true,
+								"typeConversionSettings": {
+									"allowDataTruncation": true,
+									"treatBooleanAsNumber": false
+								}
+							}
+						},
+						"inputs": [
+							{
+								"referenceName": "ds_adls_gold_dim_calendario",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "AzureSqlTable1",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						]
+					},
+					{
+						"name": "l_dim_estado_to_sqldb",
+						"type": "Copy",
+						"dependsOn": [
+							{
+								"activity": "l_gold_to_sqldb",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "ParquetSource",
+								"storeSettings": {
+									"type": "AzureBlobFSReadSettings",
+									"recursive": true,
+									"enablePartitionDiscovery": false
+								},
+								"formatSettings": {
+									"type": "ParquetReadSettings"
+								}
+							},
+							"sink": {
+								"type": "AzureSqlSink",
+								"writeBehavior": "insert",
+								"sqlWriterUseTableLock": false
+							},
+							"enableStaging": false,
+							"translator": {
+								"type": "TabularTranslator",
+								"typeConversion": true,
+								"typeConversionSettings": {
+									"allowDataTruncation": true,
+									"treatBooleanAsNumber": false
+								}
+							}
+						},
+						"inputs": [
+							{
+								"referenceName": "ds_adls_gold_dim_estado",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "ds_sqldb_dim_estado",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						]
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"annotations": [],
+				"lastPublishTime": "2026-08-04T23:49:08Z"
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/ds_http_prf_raw')]",
+				"[concat(variables('factoryId'), '/datasets/ds_adls_bronze_raw')]",
+				"[concat(variables('factoryId'), '/linkedServices/ls_databricks_transportes')]",
+				"[concat(variables('factoryId'), '/dataflows/df_silver_to_gold')]",
+				"[concat(variables('factoryId'), '/datasets/ds_adls_gold_parquet')]",
+				"[concat(variables('factoryId'), '/datasets/ds_sqldb_acidentes_enriquecido')]",
+				"[concat(variables('factoryId'), '/datasets/ds_adls_gold_fato_acidentes')]",
+				"[concat(variables('factoryId'), '/datasets/ds_sqldb_fato_acidentes')]",
+				"[concat(variables('factoryId'), '/datasets/ds_adls_gold_dim_calendario')]",
+				"[concat(variables('factoryId'), '/datasets/AzureSqlTable1')]",
+				"[concat(variables('factoryId'), '/datasets/ds_adls_gold_dim_estado')]",
+				"[concat(variables('factoryId'), '/datasets/ds_sqldb_dim_estado')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/AzureSqlTable1')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "ls_sqldb_transportes_gold",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": [
+					{
+						"name": "data",
+						"type": "date"
+					},
+					{
+						"name": "ano",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "mes",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "nome_mes",
+						"type": "varchar"
+					},
+					{
+						"name": "trimestre",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "dia_semana",
+						"type": "varchar"
+					},
+					{
+						"name": "fim_de_semana",
+						"type": "bit"
+					}
+				],
+				"typeProperties": {
+					"schema": "dbo",
+					"table": "dim_calendario"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/ls_sqldb_transportes_gold')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/ds_adls_bronze_raw')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "ls_adls_transportes",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "Binary",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"fileName": "datatran2026.csv",
+						"fileSystem": "bronze"
+					}
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/ls_adls_transportes')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/ds_adls_gold_dim_calendario')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "ls_adls_transportes",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "Parquet",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"fileName": "dim_calendario.parquet",
+						"fileSystem": "gold"
+					},
+					"compressionCodec": "snappy"
+				},
+				"schema": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/ls_adls_transportes')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/ds_adls_gold_dim_estado')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "ls_adls_transportes",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "Parquet",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"fileName": "dim_estado.parquet",
+						"fileSystem": "gold"
+					},
+					"compressionCodec": "snappy"
+				},
+				"schema": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/ls_adls_transportes')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/ds_adls_gold_fato_acidentes')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "ls_adls_transportes",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "Parquet",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"fileName": "fato_acidentes.parquet",
+						"fileSystem": "gold"
+					},
+					"compressionCodec": "snappy"
+				},
+				"schema": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/ls_adls_transportes')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/ds_adls_gold_parquet')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "ls_adls_transportes",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "Parquet",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"fileSystem": "gold"
+					},
+					"compressionCodec": "snappy"
+				},
+				"schema": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/ls_adls_transportes')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/ds_adls_silver_parquet')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "ls_adls_transportes",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "Parquet",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"folderPath": "acidentes_silver",
+						"fileSystem": "silver"
+					},
+					"compressionCodec": "snappy"
+				},
+				"schema": [
+					{
+						"name": "id",
+						"type": "INT_32"
+					},
+					{
+						"name": "data_inversa",
+						"type": "DATE"
+					},
+					{
+						"name": "dia_semana",
+						"type": "UTF8"
+					},
+					{
+						"name": "horario",
+						"type": "INT96"
+					},
+					{
+						"name": "uf",
+						"type": "UTF8"
+					},
+					{
+						"name": "br",
+						"type": "INT_32"
+					},
+					{
+						"name": "km",
+						"type": "DOUBLE"
+					},
+					{
+						"name": "municipio",
+						"type": "UTF8"
+					},
+					{
+						"name": "causa_acidente",
+						"type": "UTF8"
+					},
+					{
+						"name": "tipo_acidente",
+						"type": "UTF8"
+					},
+					{
+						"name": "classificacao_acidente",
+						"type": "UTF8"
+					},
+					{
+						"name": "fase_dia",
+						"type": "UTF8"
+					},
+					{
+						"name": "sentido_via",
+						"type": "UTF8"
+					},
+					{
+						"name": "condicao_metereologica",
+						"type": "UTF8"
+					},
+					{
+						"name": "tipo_pista",
+						"type": "UTF8"
+					},
+					{
+						"name": "tracado_via",
+						"type": "UTF8"
+					},
+					{
+						"name": "uso_solo",
+						"type": "UTF8"
+					},
+					{
+						"name": "pessoas",
+						"type": "INT_32"
+					},
+					{
+						"name": "mortos",
+						"type": "INT_32"
+					},
+					{
+						"name": "feridos_leves",
+						"type": "INT_32"
+					},
+					{
+						"name": "feridos_graves",
+						"type": "INT_32"
+					},
+					{
+						"name": "feridos",
+						"type": "INT_32"
+					},
+					{
+						"name": "ilesos",
+						"type": "INT_32"
+					},
+					{
+						"name": "ignorados",
+						"type": "INT_32"
+					},
+					{
+						"name": "veiculos",
+						"type": "INT_32"
+					},
+					{
+						"name": "latitude",
+						"type": "DOUBLE"
+					},
+					{
+						"name": "longitude",
+						"type": "DOUBLE"
+					},
+					{
+						"name": "regional",
+						"type": "UTF8"
+					},
+					{
+						"name": "delegacia",
+						"type": "UTF8"
+					},
+					{
+						"name": "uop",
+						"type": "UTF8"
+					}
+				]
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/ls_adls_transportes')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/ds_http_prf_raw')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "ls_http_prf",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "Binary",
+				"typeProperties": {
+					"location": {
+						"type": "HttpServerLocation"
+					},
+					"compression": {
+						"type": "ZipDeflate",
+						"level": "Optimal"
+					}
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/ls_http_prf')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/ds_sqldb_acidentes_enriquecido')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "ls_sqldb_transportes_gold",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": [
+					{
+						"name": "uf",
+						"type": "varchar"
+					},
+					{
+						"name": "uf_nome",
+						"type": "varchar"
+					},
+					{
+						"name": "regiao",
+						"type": "varchar"
+					},
+					{
+						"name": "total_acidentes",
+						"type": "bigint",
+						"precision": 19
+					},
+					{
+						"name": "total_mortos",
+						"type": "bigint",
+						"precision": 19
+					},
+					{
+						"name": "total_km",
+						"type": "float",
+						"precision": 15
+					},
+					{
+						"name": "pavimentada_km",
+						"type": "float",
+						"precision": 15
+					},
+					{
+						"name": "percentual_pavimentado",
+						"type": "float",
+						"precision": 15
+					},
+					{
+						"name": "acidentes_por_1000km",
+						"type": "float",
+						"precision": 15
+					},
+					{
+						"name": "mortes_por_1000km",
+						"type": "float",
+						"precision": 15
+					}
+				],
+				"typeProperties": {
+					"schema": "dbo",
+					"table": "acidentes_enriquecido"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/ls_sqldb_transportes_gold')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/ds_sqldb_dim_estado')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "ls_sqldb_transportes_gold",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": [
+					{
+						"name": "uf",
+						"type": "varchar"
+					},
+					{
+						"name": "uf_nome",
+						"type": "varchar"
+					},
+					{
+						"name": "regiao",
+						"type": "varchar"
+					},
+					{
+						"name": "total_km",
+						"type": "float",
+						"precision": 15
+					},
+					{
+						"name": "pavimentada_km",
+						"type": "float",
+						"precision": 15
+					},
+					{
+						"name": "percentual_pavimentado",
+						"type": "float",
+						"precision": 15
+					}
+				],
+				"typeProperties": {
+					"schema": "dbo",
+					"table": "dim_estado"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/ls_sqldb_transportes_gold')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/ds_sqldb_fato_acidentes')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "ls_sqldb_transportes_gold",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": [
+					{
+						"name": "id",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "data",
+						"type": "date"
+					},
+					{
+						"name": "horario",
+						"type": "datetime2",
+						"scale": 7
+					},
+					{
+						"name": "uf",
+						"type": "varchar"
+					},
+					{
+						"name": "br",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "km",
+						"type": "float",
+						"precision": 15
+					},
+					{
+						"name": "municipio",
+						"type": "varchar"
+					},
+					{
+						"name": "causa_acidente",
+						"type": "varchar"
+					},
+					{
+						"name": "tipo_acidente",
+						"type": "varchar"
+					},
+					{
+						"name": "classificacao_acidente",
+						"type": "varchar"
+					},
+					{
+						"name": "fase_dia",
+						"type": "varchar"
+					},
+					{
+						"name": "sentido_via",
+						"type": "varchar"
+					},
+					{
+						"name": "condicao_metereologica",
+						"type": "varchar"
+					},
+					{
+						"name": "tipo_pista",
+						"type": "varchar"
+					},
+					{
+						"name": "tracado_via",
+						"type": "varchar"
+					},
+					{
+						"name": "uso_solo",
+						"type": "varchar"
+					},
+					{
+						"name": "latitude",
+						"type": "float",
+						"precision": 15
+					},
+					{
+						"name": "longitude",
+						"type": "float",
+						"precision": 15
+					},
+					{
+						"name": "regional",
+						"type": "varchar"
+					},
+					{
+						"name": "delegacia",
+						"type": "varchar"
+					},
+					{
+						"name": "uop",
+						"type": "varchar"
+					},
+					{
+						"name": "pessoas",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "mortos",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "feridos_leves",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "feridos_graves",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "feridos",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "ilesos",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "ignorados",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "veiculos",
+						"type": "int",
+						"precision": 10
+					}
+				],
+				"typeProperties": {
+					"schema": "dbo",
+					"table": "fato_acidentes"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/ls_sqldb_transportes_gold')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/AzureDatabricks1')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "AzureDatabricks",
+				"typeProperties": {
+					"domain": "https://adb-7405616592847754.14.azuredatabricks.net",
+					"accessToken": {
+						"type": "SecureString",
+						"value": "[parameters('AzureDatabricks1_accessToken')]"
+					},
+					"existingClusterId": "[parameters('AzureDatabricks1_properties_typeProperties_existingClusterId')]"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/ls_adls_transportes')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "AzureBlobFS",
+				"typeProperties": {
+					"url": "[parameters('ls_adls_transportes_properties_typeProperties_url')]",
+					"accountKey": {
+						"type": "SecureString",
+						"value": "[parameters('ls_adls_transportes_accountKey')]"
+					}
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/ls_databricks_transportes')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "AzureDatabricks",
+				"typeProperties": {
+					"domain": "https://adb-7405616592847754.14.azuredatabricks.net",
+					"accessToken": {
+						"type": "SecureString",
+						"value": "[parameters('ls_databricks_transportes_accessToken')]"
+					},
+					"existingClusterId": "[parameters('ls_databricks_transportes_properties_typeProperties_existingClusterId')]"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/ls_http_prf')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "HttpServer",
+				"typeProperties": {
+					"url": "[parameters('ls_http_prf_properties_typeProperties_url')]",
+					"enableServerCertificateValidation": true,
+					"authenticationType": "Anonymous"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/ls_sqldb_transportes_gold')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "AzureSqlDatabase",
+				"typeProperties": {
+					"server": "[parameters('ls_sqldb_transportes_gold_properties_typeProperties_server')]",
+					"database": "[parameters('ls_sqldb_transportes_gold_properties_typeProperties_database')]",
+					"encrypt": "mandatory",
+					"trustServerCertificate": false,
+					"authenticationType": "SQL",
+					"userName": "[parameters('ls_sqldb_transportes_gold_properties_typeProperties_userName')]",
+					"password": {
+						"type": "SecureString",
+						"value": "[parameters('ls_sqldb_transportes_gold_password')]"
+					}
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/df_silver_to_gold')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "ds_adls_silver_parquet",
+								"type": "DatasetReference"
+							},
+							"name": "origemSilver"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "ds_adls_gold_parquet",
+								"type": "DatasetReference"
+							},
+							"name": "destinoGold"
+						}
+					],
+					"transformations": [
+						{
+							"name": "AgregaDados"
+						}
+					],
+					"scriptLines": [
+						"source(output(",
+						"          id as integer,",
+						"          data_inversa as date,",
+						"          dia_semana as string,",
+						"          horario as timestamp,",
+						"          uf as string,",
+						"          br as integer,",
+						"          km as double,",
+						"          municipio as string,",
+						"          causa_acidente as string,",
+						"          tipo_acidente as string,",
+						"          classificacao_acidente as string,",
+						"          fase_dia as string,",
+						"          sentido_via as string,",
+						"          condicao_metereologica as string,",
+						"          tipo_pista as string,",
+						"          tracado_via as string,",
+						"          uso_solo as string,",
+						"          pessoas as integer,",
+						"          mortos as integer,",
+						"          feridos_leves as integer,",
+						"          feridos_graves as integer,",
+						"          feridos as integer,",
+						"          ilesos as integer,",
+						"          ignorados as integer,",
+						"          veiculos as integer,",
+						"          latitude as double,",
+						"          longitude as double,",
+						"          regional as string,",
+						"          delegacia as string,",
+						"          uop as string",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false,",
+						"     format: 'parquet') ~> origemSilver",
+						"origemSilver aggregate(groupBy(uf,",
+						"          causa_acidente),",
+						"     total_acidentes = count(1),",
+						"          total_mortos = sum(mortos)) ~> AgregaDados",
+						"AgregaDados sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     format: 'parquet',",
+						"     partitionFileNames:['acidentes_por_uf.parquet'],",
+						"     umask: 0022,",
+						"     preCommands: [],",
+						"     postCommands: [],",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     partitionBy('hash', 1)) ~> destinoGold"
+					]
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/ds_adls_silver_parquet')]",
+				"[concat(variables('factoryId'), '/datasets/ds_adls_gold_parquet')]"
+			]
+		}
+	]
+}

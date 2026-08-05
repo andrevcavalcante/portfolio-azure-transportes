@@ -1,0 +1,42 @@
+{
+	"$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"factoryName": {
+			"value": "adf-transportes"
+		},
+		"AzureDatabricks1_accessToken": {
+			"value": ""
+		},
+		"ls_adls_transportes_accountKey": {
+			"value": ""
+		},
+		"ls_databricks_transportes_accessToken": {
+			"value": ""
+		},
+		"ls_sqldb_transportes_gold_password": {
+			"value": ""
+		},
+		"AzureDatabricks1_properties_typeProperties_existingClusterId": {
+			"value": "0801-010051-oxan9fa1"
+		},
+		"ls_adls_transportes_properties_typeProperties_url": {
+			"value": "https://stgtransportes2026.dfs.core.windows.net/"
+		},
+		"ls_databricks_transportes_properties_typeProperties_existingClusterId": {
+			"value": "0801-010051-oxan9fa1"
+		},
+		"ls_http_prf_properties_typeProperties_url": {
+			"value": "https://drive.google.com/uc?export=download&id=1A3IirNm0AzRaSosA1IS94DOVmvKsn0Ol"
+		},
+		"ls_sqldb_transportes_gold_properties_typeProperties_server": {
+			"value": "sql-transportes-andrev.database.windows.net"
+		},
+		"ls_sqldb_transportes_gold_properties_typeProperties_database": {
+			"value": "sqldb-transportes-gold"
+		},
+		"ls_sqldb_transportes_gold_properties_typeProperties_userName": {
+			"value": "adminportfolio"
+		}
+	}
+}

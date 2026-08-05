@@ -1,0 +1,119 @@
+{
+	"$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"factoryName": {
+			"type": "string",
+			"metadata": "Nome do Data Factory",
+			"defaultValue": "adf-transportes"
+		},
+		"AzureDatabricks1_accessToken": {
+			"type": "secureString",
+			"metadata": "Cadeia de caracteres segura para 'accessToken' de 'AzureDatabricks1'"
+		},
+		"ls_adls_transportes_accountKey": {
+			"type": "secureString",
+			"metadata": "Cadeia de caracteres segura para 'accountKey' de 'ls_adls_transportes'"
+		},
+		"ls_databricks_transportes_accessToken": {
+			"type": "secureString",
+			"metadata": "Cadeia de caracteres segura para 'accessToken' de 'ls_databricks_transportes'"
+		},
+		"ls_sqldb_transportes_gold_password": {
+			"type": "secureString",
+			"metadata": "Cadeia de caracteres segura para 'password' de 'ls_sqldb_transportes_gold'"
+		},
+		"AzureDatabricks1_properties_typeProperties_existingClusterId": {
+			"type": "string",
+			"defaultValue": "0801-010051-oxan9fa1"
+		},
+		"ls_adls_transportes_properties_typeProperties_url": {
+			"type": "string",
+			"defaultValue": "https://stgtransportes2026.dfs.core.windows.net/"
+		},
+		"ls_databricks_transportes_properties_typeProperties_existingClusterId": {
+			"type": "string",
+			"defaultValue": "0801-010051-oxan9fa1"
+		},
+		"ls_http_prf_properties_typeProperties_url": {
+			"type": "string",
+			"defaultValue": "https://drive.google.com/uc?export=download&id=1A3IirNm0AzRaSosA1IS94DOVmvKsn0Ol"
+		},
+		"ls_sqldb_transportes_gold_properties_typeProperties_server": {
+			"type": "string",
+			"defaultValue": "sql-transportes-andrev.database.windows.net"
+		},
+		"ls_sqldb_transportes_gold_properties_typeProperties_database": {
+			"type": "string",
+			"defaultValue": "sqldb-transportes-gold"
+		},
+		"ls_sqldb_transportes_gold_properties_typeProperties_userName": {
+			"type": "string",
+			"defaultValue": "adminportfolio"
+		},
+		"containerUri": {
+			"type": "string",
+			"metadata": "URI para a conta de armazenamento contendo os modelos do ARM vinculados"
+		},
+		"containerSasToken": {
+			"type": "string",
+			"metadata": "Token SAS para a conta de armazenamento contendo modelos do ARM vinculados"
+		}
+	},
+	"variables": {
+		"factoryId": "[concat('Microsoft.DataFactory/factories/', parameters('factoryName'))]"
+	},
+	"resources": [
+		{
+			"name": "adf-transportes_ArmTemplate_0",
+			"type": "Microsoft.Resources/deployments",
+			"apiVersion": "2024-03-01",
+			"properties": {
+				"mode": "incremental",
+				"templateLink": {
+					"uri": "[concat(parameters('containerUri'), '/ArmTemplate_0.json', parameters('containerSasToken'))]",
+					"contentVersion": "1.0.0.0"
+				},
+				"parameters": {
+					"factoryName": {
+						"value": "[parameters('factoryName')]"
+					},
+					"AzureDatabricks1_accessToken": {
+						"value": "[parameters('AzureDatabricks1_accessToken')]"
+					},
+					"ls_adls_transportes_accountKey": {
+						"value": "[parameters('ls_adls_transportes_accountKey')]"
+					},
+					"ls_databricks_transportes_accessToken": {
+						"value": "[parameters('ls_databricks_transportes_accessToken')]"
+					},
+					"ls_sqldb_transportes_gold_password": {
+						"value": "[parameters('ls_sqldb_transportes_gold_password')]"
+					},
+					"AzureDatabricks1_properties_typeProperties_existingClusterId": {
+						"value": "[parameters('AzureDatabricks1_properties_typeProperties_existingClusterId')]"
+					},
+					"ls_adls_transportes_properties_typeProperties_url": {
+						"value": "[parameters('ls_adls_transportes_properties_typeProperties_url')]"
+					},
+					"ls_databricks_transportes_properties_typeProperties_existingClusterId": {
+						"value": "[parameters('ls_databricks_transportes_properties_typeProperties_existingClusterId')]"
+					},
+					"ls_http_prf_properties_typeProperties_url": {
+						"value": "[parameters('ls_http_prf_properties_typeProperties_url')]"
+					},
+					"ls_sqldb_transportes_gold_properties_typeProperties_server": {
+						"value": "[parameters('ls_sqldb_transportes_gold_properties_typeProperties_server')]"
+					},
+					"ls_sqldb_transportes_gold_properties_typeProperties_database": {
+						"value": "[parameters('ls_sqldb_transportes_gold_properties_typeProperties_database')]"
+					},
+					"ls_sqldb_transportes_gold_properties_typeProperties_userName": {
+						"value": "[parameters('ls_sqldb_transportes_gold_properties_typeProperties_userName')]"
+					}
+				}
+			},
+			"dependsOn": []
+		}
+	]
+}
