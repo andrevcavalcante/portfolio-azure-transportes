@@ -487,7 +487,13 @@
 						"type": "Copy",
 						"dependsOn": [
 							{
-								"activity": "l_gold_to_sqldb",
+								"activity": "l_dim_calendario_to_sqldb",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							},
+							{
+								"activity": "l_dim_estado_to_sqldb",
 								"dependencyConditions": [
 									"Succeeded"
 								]
@@ -548,7 +554,7 @@
 						"type": "Copy",
 						"dependsOn": [
 							{
-								"activity": "l_gold_to_sqldb",
+								"activity": "sp_truncate_fato_acidentes",
 								"dependencyConditions": [
 									"Succeeded"
 								]
@@ -609,7 +615,7 @@
 						"type": "Copy",
 						"dependsOn": [
 							{
-								"activity": "l_gold_to_sqldb",
+								"activity": "sp_truncate_fato_acidentes",
 								"dependencyConditions": [
 									"Succeeded"
 								]
@@ -638,7 +644,8 @@
 							"sink": {
 								"type": "AzureSqlSink",
 								"writeBehavior": "insert",
-								"sqlWriterUseTableLock": false
+								"sqlWriterUseTableLock": false,
+								"disableMetricsCollection": false
 							},
 							"enableStaging": false,
 							"translator": {
@@ -664,6 +671,39 @@
 								"parameters": {}
 							}
 						]
+					},
+					{
+						"name": "sp_truncate_fato_acidentes",
+						"type": "Script",
+						"dependsOn": [
+							{
+								"activity": "t_nb_gold_enriquecido",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"linkedServiceName": {
+							"referenceName": "ls_sqldb_transportes_gold",
+							"type": "LinkedServiceReference"
+						},
+						"typeProperties": {
+							"scripts": [
+								{
+									"type": "Query",
+									"text": "TRUNCATE TABLE dbo.fato_acidentes;"
+								}
+							],
+							"scriptBlockExecutionTimeout": "02:00:00"
+						}
 					}
 				],
 				"policy": {
@@ -684,7 +724,8 @@
 				"[concat(variables('factoryId'), '/datasets/ds_adls_gold_dim_calendario')]",
 				"[concat(variables('factoryId'), '/datasets/AzureSqlTable1')]",
 				"[concat(variables('factoryId'), '/datasets/ds_adls_gold_dim_estado')]",
-				"[concat(variables('factoryId'), '/datasets/ds_sqldb_dim_estado')]"
+				"[concat(variables('factoryId'), '/datasets/ds_sqldb_dim_estado')]",
+				"[concat(variables('factoryId'), '/linkedServices/ls_sqldb_transportes_gold')]"
 			]
 		},
 		{
