@@ -10,7 +10,7 @@
 		"typeProperties": {
 			"location": {
 				"type": "AzureBlobFSLocation",
-				"fileName": "fato_acidentes.parquet",
+				"folderPath": "fato_acidentes.parquet",
 				"fileSystem": "gold"
 			},
 			"compressionCodec": "snappy"
