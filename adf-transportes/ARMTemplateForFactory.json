@@ -513,6 +513,7 @@
 								"storeSettings": {
 									"type": "AzureBlobFSReadSettings",
 									"recursive": true,
+									"wildcardFileName": "part-*.parquet",
 									"enablePartitionDiscovery": false
 								},
 								"formatSettings": {
@@ -868,7 +869,7 @@
 				"typeProperties": {
 					"location": {
 						"type": "AzureBlobFSLocation",
-						"fileName": "fato_acidentes.parquet",
+						"folderPath": "fato_acidentes.parquet",
 						"fileSystem": "gold"
 					},
 					"compressionCodec": "snappy"
