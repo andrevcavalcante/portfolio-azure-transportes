@@ -185,7 +185,7 @@
 						"storeSettings": {
 							"type": "AzureBlobFSReadSettings",
 							"recursive": true,
-							"wildcardFolderPath": "fato_acidentes.parquet",
+							"wildcardFolderPath": "acidentes_enriquecido_dnit.parquet",
 							"wildcardFileName": "part-*.parquet",
 							"enablePartitionDiscovery": false
 						},
