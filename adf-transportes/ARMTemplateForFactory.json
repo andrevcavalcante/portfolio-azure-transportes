@@ -575,6 +575,7 @@
 								"storeSettings": {
 									"type": "AzureBlobFSReadSettings",
 									"recursive": true,
+									"wildcardFileName": "part-*.parquet",
 									"enablePartitionDiscovery": false
 								},
 								"formatSettings": {
@@ -636,6 +637,7 @@
 								"storeSettings": {
 									"type": "AzureBlobFSReadSettings",
 									"recursive": true,
+									"wildcardFileName": "part-*.parquet",
 									"enablePartitionDiscovery": false
 								},
 								"formatSettings": {
@@ -819,7 +821,7 @@
 				"typeProperties": {
 					"location": {
 						"type": "AzureBlobFSLocation",
-						"fileName": "dim_calendario.parquet",
+						"folderPath": "dim_calendario.parquet",
 						"fileSystem": "gold"
 					},
 					"compressionCodec": "snappy"
@@ -844,7 +846,7 @@
 				"typeProperties": {
 					"location": {
 						"type": "AzureBlobFSLocation",
-						"fileName": "dim_estado.parquet",
+						"folderPath": "dim_estado.parquet",
 						"fileSystem": "gold"
 					},
 					"compressionCodec": "snappy"
