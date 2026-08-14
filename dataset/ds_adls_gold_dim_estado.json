@@ -10,7 +10,7 @@
 		"typeProperties": {
 			"location": {
 				"type": "AzureBlobFSLocation",
-				"fileName": "dim_estado.parquet",
+				"folderPath": "dim_estado.parquet",
 				"fileSystem": "gold"
 			},
 			"compressionCodec": "snappy"
