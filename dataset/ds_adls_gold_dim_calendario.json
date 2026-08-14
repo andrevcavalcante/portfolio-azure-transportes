@@ -10,7 +10,7 @@
 		"typeProperties": {
 			"location": {
 				"type": "AzureBlobFSLocation",
-				"fileName": "dim_calendario.parquet",
+				"folderPath": "dim_calendario.parquet",
 				"fileSystem": "gold"
 			},
 			"compressionCodec": "snappy"
